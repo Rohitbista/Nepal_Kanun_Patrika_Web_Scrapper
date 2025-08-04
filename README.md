@@ -1,4 +1,4 @@
-# Nepal Kanoon Patrika Scraper
+# Nepal Kanun Patrika Scraper
 
 A Python-based web scraper for extracting legal case details from the Nepal Kanoon Patrika (NKP) website (https://nkp.gov.np/). This tool scrapes case information, saves it to a SQLite database, and stores HTML files for offline processing. It supports various case types and years, with robust error handling and retry mechanisms.
 
@@ -140,17 +140,3 @@ The `failed_links` table includes:
 - **Database Errors**: Check if the database file is accessible and not locked.
 - **Network Issues**: Verify internet connectivity for web scraping.
 - **Invalid Case Type or Year**: Use `--list_mudda_types` to see valid case types, and ensure the year is in Nepali numerals.
-
-## Contributing
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/YourFeature`)
-3. Commit your changes (`git commit -m 'Add YourFeature'`)
-4. Push to the branch (`git push origin feature/YourFeature`)
-5. Open a pull request
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contact
-For issues or questions, please open an issue on GitHub or contact [your-email@example.com].
