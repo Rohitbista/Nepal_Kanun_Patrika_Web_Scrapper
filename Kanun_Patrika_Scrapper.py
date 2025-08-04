@@ -855,6 +855,12 @@ class LegalCaseScraper:
                 
                 details["प्रकरण"] = prakarans
                 details["ठहर"] = tahar
+
+            # Get HTML file path
+            html_file_path = ""
+            if mudda_type and sal:
+                filename = self.generate_html_filename(url, mudda_type, sal)
+                html_file_path = os.path.join(self.html_folder, filename)
             
             # Combine all data, handling lists and strings appropriately
             data = {
@@ -874,7 +880,8 @@ class LegalCaseScraper:
                 "निवेदक": json.dumps(details.get("निवेदक", []), ensure_ascii=False) if isinstance(details.get("निवेदक"), list) else details.get("निवेदक", "N/A"),
                 "विपक्षी": json.dumps(details.get("विपक्षी", []), ensure_ascii=False) if isinstance(details.get("विपक्षी"), list) else details.get("विपक्षी", "N/A"),
                 "प्रकरण": json.dumps(details.get("प्रकरण", []), ensure_ascii=False),
-                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False)
+                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False),
+                "html_file_path": html_file_path
             }
             
             # Save to SQLite
@@ -886,7 +893,7 @@ class LegalCaseScraper:
             print(f"Error scraping {url}: {e}")
             return False
 
-    def scrape_case_details_2051_to_2061(self, url, mudda_type):  # CHANGE 4: Remove output_db parameter
+    def scrape_case_details_2051_to_2061(self, url, mudda_type, sal = None, use_saved=True):  # CHANGE 4: Remove output_db parameter
         """Scrape details from a single case URL"""
         try:
             # IMPROVEMENT 16: Check if URL already exists in database
@@ -1052,6 +1059,12 @@ class LegalCaseScraper:
                 
                 details["प्रकरण"] = prakarans
                 details["ठहर"] = tahar
+
+            # Get HTML file path
+            html_file_path = ""
+            if mudda_type and sal:
+                filename = self.generate_html_filename(url, mudda_type, sal)
+                html_file_path = os.path.join(self.html_folder, filename)
             
             # Combine all data, handling lists and strings appropriately
             data = {
@@ -1071,7 +1084,8 @@ class LegalCaseScraper:
                 "निवेदक": json.dumps(details.get("निवेदक", []), ensure_ascii=False) if isinstance(details.get("निवेदक"), list) else details.get("निवेदक", "N/A"),
                 "विपक्षी": json.dumps(details.get("विपक्षी", []), ensure_ascii=False) if isinstance(details.get("विपक्षी"), list) else details.get("विपक्षी", "N/A"),
                 "प्रकरण": json.dumps(details.get("प्रकरण", []), ensure_ascii=False),
-                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False)
+                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False),
+                "html_file_path": html_file_path
             }
             
             # Save to SQLite
@@ -1083,7 +1097,7 @@ class LegalCaseScraper:
             print(f"Error scraping {url}: {e}")
             return False
     
-    def scrape_case_details_2062_to_2072(self, url, mudda_type):  # CHANGE 4: Remove output_db parameter
+    def scrape_case_details_2062_to_2072(self, url, mudda_type, sal = None, use_saved=True):  # CHANGE 4: Remove output_db parameter
         """Scrape details from a single case URL"""
         try:
             # IMPROVEMENT 16: Check if URL already exists in database
@@ -1413,6 +1427,12 @@ class LegalCaseScraper:
                 
                 details["प्रकरण"] = prakarans
                 details["ठहर"] = tahar
+
+            # Get HTML file path
+            html_file_path = ""
+            if mudda_type and sal:
+                filename = self.generate_html_filename(url, mudda_type, sal)
+                html_file_path = os.path.join(self.html_folder, filename)
             
             # Combine all data, handling lists and strings appropriately
             data = {
@@ -1432,7 +1452,8 @@ class LegalCaseScraper:
                 "निवेदक": json.dumps(details.get("निवेदक", []), ensure_ascii=False) if isinstance(details.get("निवेदक"), list) else details.get("निवेदक", "N/A"),
                 "विपक्षी": json.dumps(details.get("विपक्षी", []), ensure_ascii=False) if isinstance(details.get("विपक्षी"), list) else details.get("विपक्षी", "N/A"),
                 "प्रकरण": json.dumps(details.get("प्रकरण", []), ensure_ascii=False),
-                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False)
+                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False),
+                "html_file_path": html_file_path
             }
             
             # Save to SQLite
@@ -1444,7 +1465,7 @@ class LegalCaseScraper:
             print(f"Error scraping {url}: {e}")
             return False
 
-    def scrape_case_details_2073_to_2080(self, url, mudda_type):
+    def scrape_case_details_2073_to_2080(self, url, mudda_type, sal = None, use_saved=True):
         """Scrape details from a single case URL"""
         try:
             r = requests.get(url, timeout=15)
@@ -1663,6 +1684,12 @@ class LegalCaseScraper:
                 
                 details["प्रकरण"] = prakarans
                 details["ठहर"] = tahar
+
+            # Get HTML file path
+            html_file_path = ""
+            if mudda_type and sal:
+                filename = self.generate_html_filename(url, mudda_type, sal)
+                html_file_path = os.path.join(self.html_folder, filename)
             
             # Combine all data, handling lists and strings appropriately
             data = {
@@ -1682,7 +1709,8 @@ class LegalCaseScraper:
                 "निवेदक": json.dumps(details.get("निवेदक", []), ensure_ascii=False) if isinstance(details.get("निवेदक"), list) else details.get("निवेदक", "N/A"),
                 "विपक्षी": json.dumps(details.get("विपक्षी", []), ensure_ascii=False) if isinstance(details.get("विपक्षी"), list) else details.get("विपक्षी", "N/A"),
                 "प्रकरण": json.dumps(details.get("प्रकरण", []), ensure_ascii=False),
-                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False)
+                "ठहर": json.dumps(details.get("ठहर", []), ensure_ascii=False),
+                "html_file_path": html_file_path
             }
             
             # Save to SQLite
