@@ -396,7 +396,7 @@ class LegalCaseScraper:
                 
                 # Extract court information
                 temp_ijlash = ""
-                while(ind < n):
+                while ind < n:
                     text = tags[ind].get_text(separator=' ', strip=True)
                     if text:
                         if any(kw == text for kw in KEYWORDS_6):
@@ -554,9 +554,11 @@ class LegalCaseScraper:
                 for tag in tags[ind:]:
                     text = tag.get_text(separator=' ', strip=True)
                     if text:
-                        if "§" in text or any(kw in text for kw in KEYWORDS_2) or "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
-                            if any(kw in text for kw in KEYWORDS_2):
-                                if prev:
+                        #if "§" in text or any(kw in text for kw in KEYWORDS_2):
+                            #prakarans.append(text)
+                        if "§" in text or any(text.startswith(kw) for kw in KEYWORDS_2) or "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
+                            if any(text.startswith(kw) for kw in KEYWORDS_2):
+                                if prev:  # IMPROVEMENT 23: Only append if prev has content
                                     prakarans.append(prev)
                                 prakarans.append(text)
                                 prev = ""
@@ -578,8 +580,8 @@ class LegalCaseScraper:
                         for li in next_sib.find_all('li'):
                             li_text = li.get_text(separator=' ', strip=True)
                             if li_text:
-                                if any(kw in li_text for kw in KEYWORDS_2):
-                                    if prev:
+                                if any(li_text.startswith(kw) for kw in KEYWORDS_2):
+                                    if prev:  # IMPROVEMENT 24: Only append if prev has content
                                         prakarans.append(prev)
                                     prakarans.append(li_text)
                                     prev = ""
@@ -588,7 +590,8 @@ class LegalCaseScraper:
                                 if li_text in ["फैसला", "आदेश", "फैसलाः"] or temp_flag_tahar:
                                     temp_flag_tahar = True
                                     tahar.append(li_text)
-                        next_sib = next_sib.find_next_sibling()                
+                        next_sib = next_sib.find_next_sibling()
+                        
                 details["प्रकरण"] = prakarans
                 details["ठहर"] = tahar
             
@@ -673,12 +676,15 @@ class LegalCaseScraper:
                 n = len(tags)
                 ind = 0
                 temp_ind_32 = ind
-                KEYWORDS_2 = ["(प्ररकण नं.", "(प्रकरण नं", "(प्रकारण नं.", "९प्रकरण नं।", "(प्रकरण", "( प्र. नं","(प्र.नं", "(प्र. नं", "( प्रकरण नं.", "( प्रकरणन", "( प्र.नं.", "( प्र . नं .", "( प ्र . नं ."]
-                KEYWORDS_3 = ["निवेदक", "वादी", "पुनरावेदक", "निबेदक", "पुनरावदेक", "निवेदिका", "निवदेक", "न ि वेदक ः", "नि वेदक ः", "पुनरावेदन", "पुनरवेदिका", "बादि", "पुनराबेदक", "प्रतिबादी"]
-                KEYWORDS_4 = ["विपक्षी", "प्रतिवादी", "प्रत्यर्थी", "बिपक्षी", "विपक्षी ः", "पिपक्षी", "विरुद्ध", "प्रत्यार्थी"]
-                KEYWORDS_5 = ["विषय", "मुद्दा", "बिषय", "मूद्दा"]
-                KEYWORDS_6 = ["इजलास", "इजालास", "इजलाश"]
-                KEYWORDS_7 = ["आदेश", "फैसला", "फैसलमा", "निर्णय"]
+                KEYWORDS_2 = ["प्रकरण नं.", "(प्रकरण नं", "(प्रकारण नं.", "९प्रकरण नं।", "(प्रकरण", "(प्र नं.","( प्र. नं","(प्र.नं", "(प्र. नं", "( प्रकरण नं.", "( प्रकरणन", "( प्र.नं.", "( प्र . नं .", "( प ्र . नं .", "(प्ररकण नं.", "(प्रकराण नं."]
+                KEYWORDS_3 = ["निवेदक", "वादी", "पुनरावेदक", "निबेदक", "पुनरावदेक", "निवेदिका", "निवेदीका", "निवदेक", "न ि वेदक ः", "नि वेदक ः", "पुनरावेदन", "पुनरवेदिका", "पुनरावेदिका", "पुनरावेदीका", "बादि", "पुनराबेदक", "प्रतिबादी", "पुनरावेक", "अपीलाट", "निवेदनक", "उजुरवाला", "अपिलबाट", "अपिलाट"]
+                KEYWORDS_4 = ["विपक्षी", "प्रतिवादी", "प्रत्यर्थी", "बिपक्षी", "विपक्षी ः", "पिपक्षी", "प्रत्यार्थी", "विपक्ष", "रेस्पोण्डेण्ट", "रेस्पोन्डेन्ट", "प्रत्यथी"]
+                KEYWORDS_5 = ["विषय", "मुद्दा", "बिषय", "मूद्दा", "मुद्द", "मद्दा", "विपक्ष", "मुद्धा", "मुद् दा"]
+                KEYWORDS_6 = ["अदालत", "इजलास", "इजालास", "इजलाश", "बेञ्च"]
+                KEYWORDS_7 = ["आदेश", "फैसला", "फैसलमा", "निर्णय", "फै सला", "मुद्दा"]
+                KEYWORDS_8 = ["न्यायाधीश", "माननीय", "न्यायधीश", "न्यायाधीस", "न्ययाधीश", "न्यायाधिश", "न्यायाधी", "न्यानायधीश", "नयायाधीश", "न्यायाधधिश", "नयाधश"]
+                KEYWORDS_9 = [ "विरूद्ध", "बिरूद्ध", "विरुद्ध", "बिरुद्ध"]
+                KEYWORDS_10 = ["AP", "FN", "RE", "RI", "LE", "RV", "NF", "CI", "CR", "RC", "SA", "MS", "ND", "RB", "CF", "DF", "RF", "WO", "WH", "WS", "WF", "WC", "CC", "EC"]
                 
                 # Extract court information
                 temp_ijlash = ""
@@ -822,12 +828,17 @@ class LegalCaseScraper:
                     if text:
                         #if "§" in text or any(kw in text for kw in KEYWORDS_2):
                             #prakarans.append(text)
-                        if "§" in text or any(kw in text for kw in KEYWORDS_2):
-                            if any(kw in text for kw in KEYWORDS_2):
+                        if "§" in text or any(text.startswith(kw) for kw in KEYWORDS_2) or "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
+                            if any(text.startswith(kw) for kw in KEYWORDS_2):
                                 if prev:  # IMPROVEMENT 23: Only append if prev has content
                                     prakarans.append(prev)
+                                prakarans.append(text)
                                 prev = ""
-                            prakarans.append(text)
+                            if "§" in text:
+                                prakarans.append(text)
+                            if "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
+                                if not prakarans:
+                                    prakarans.append(prev)
                         else:
                             prev = prev + " " + text if prev else text
                         
@@ -841,7 +852,7 @@ class LegalCaseScraper:
                         for li in next_sib.find_all('li'):
                             li_text = li.get_text(separator=' ', strip=True)
                             if li_text:
-                                if any(kw in li_text for kw in KEYWORDS_2):
+                                if any(li_text.startswith(kw) for kw in KEYWORDS_2):
                                     if prev:  # IMPROVEMENT 24: Only append if prev has content
                                         prakarans.append(prev)
                                     prakarans.append(li_text)
@@ -936,9 +947,15 @@ class LegalCaseScraper:
                 n = len(tags)
                 ind = 0
                 temp_ind_32 = ind
-                KEYWORDS_2 = ["(प्रकरण नं", "(प्रकारण नं.", "९प्रकरण नं।", "(प्रकरण", "( प्र. नं","(प्र.नं", "( प्रकरण नं.", "( प्रकरणन", "( प्र.नं.", "( प्र. नं.", "( प्र . नं .", "( प ्र . नं ."]
-                KEYWORDS_3 = ["निवेदक", "वादी", "पुनरावेदक", "निबेदक", "पुनरावदेक", "निवेदिका", "निवदेक", "न ि वेदक ः", "नि वेदक ः", "पुनरावेदन", "पुनरवेदिका", "बादि"]
-                KEYWORDS_4 = ["विपक्षी", "प्रतिवादी", "प्रत्यर्थी", "बिपक्षी", "विपक्षी ः", "पिपक्षी"]
+                KEYWORDS_2 = ["प्रकरण नं.", "(प्रकरण नं", "(प्रकारण नं.", "९प्रकरण नं।", "(प्रकरण", "(प्र नं.","( प्र. नं","(प्र.नं", "(प्र. नं", "( प्रकरण नं.", "( प्रकरणन", "( प्र.नं.", "( प्र . नं .", "( प ्र . नं .", "(प्ररकण नं.", "(प्रकराण नं."]
+                KEYWORDS_3 = ["निवेदक", "वादी", "पुनरावेदक", "निबेदक", "पुनरावदेक", "निवेदिका", "निवेदीका", "निवदेक", "न ि वेदक ः", "नि वेदक ः", "पुनरावेदन", "पुनरवेदिका", "पुनरावेदिका", "पुनरावेदीका", "बादि", "पुनराबेदक", "प्रतिबादी", "पुनरावेक", "अपीलाट", "निवेदनक", "उजुरवाला", "अपिलबाट", "अपिलाट"]
+                KEYWORDS_4 = ["विपक्षी", "प्रतिवादी", "प्रत्यर्थी", "बिपक्षी", "विपक्षी ः", "पिपक्षी", "प्रत्यार्थी", "विपक्ष", "रेस्पोण्डेण्ट", "रेस्पोन्डेन्ट", "प्रत्यथी"]
+                KEYWORDS_5 = ["विषय", "मुद्दा", "बिषय", "मूद्दा", "मुद्द", "मद्दा", "विपक्ष", "मुद्धा", "मुद् दा"]
+                KEYWORDS_6 = ["अदालत", "इजलास", "इजालास", "इजलाश", "बेञ्च"]
+                KEYWORDS_7 = ["आदेश", "फैसला", "फैसलमा", "निर्णय", "फै सला", "मुद्दा"]
+                KEYWORDS_8 = ["न्यायाधीश", "माननीय", "न्यायधीश", "न्यायाधीस", "न्ययाधीश", "न्यायाधिश", "न्यायाधी", "न्यानायधीश", "नयायाधीश", "न्यायाधधिश", "नयाधश"]
+                KEYWORDS_9 = [ "विरूद्ध", "बिरूद्ध", "विरुद्ध", "बिरुद्ध"]
+                KEYWORDS_10 = ["AP", "FN", "RE", "RI", "LE", "RV", "NF", "CI", "CR", "RC", "SA", "MS", "ND", "RB", "CF", "DF", "RF", "WO", "WH", "WS", "WF", "WC", "CC", "EC"]
                 
                 # Extract court information
                 while ind < n:
@@ -951,6 +968,8 @@ class LegalCaseScraper:
 
                 if ind >= n:
                     ind = temp_ind_32
+                else:
+                    temp_ind_32 = ind
                 
                 # Extract judges
                 judges = []
@@ -970,6 +989,8 @@ class LegalCaseScraper:
 
                 if ind >= n:
                     ind = temp_ind_32
+                else:
+                    temp_ind_32 = ind
                 
                 # Standard case structure
                 while ind < n:
@@ -997,6 +1018,8 @@ class LegalCaseScraper:
 
                 if ind >= n:
                     ind = temp_ind_32
+                else:
+                    temp_ind_32 = ind
                     
                 while ind < n:
                     text = tags[ind].get_text(separator=' ', strip=True)
@@ -1012,6 +1035,8 @@ class LegalCaseScraper:
 
                 if ind >= n:
                     ind = temp_ind_32
+                else:
+                    temp_ind_32 = ind
                 
                 # Extract prakarans and tahar
                 prakarans = []
@@ -1026,12 +1051,17 @@ class LegalCaseScraper:
                     if text:
                         #if "§" in text or any(kw in text for kw in KEYWORDS_2):
                             #prakarans.append(text)
-                        if "§" in text or any(kw in text for kw in KEYWORDS_2):
-                            if any(kw in text for kw in KEYWORDS_2):
+                        if "§" in text or any(text.startswith(kw) for kw in KEYWORDS_2) or "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
+                            if any(text.startswith(kw) for kw in KEYWORDS_2):
                                 if prev:  # IMPROVEMENT 23: Only append if prev has content
                                     prakarans.append(prev)
+                                prakarans.append(text)
                                 prev = ""
-                            prakarans.append(text)
+                            if "§" in text:
+                                prakarans.append(text)
+                            if "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
+                                if not prakarans:
+                                    prakarans.append(prev)
                         else:
                             prev = prev + " " + text if prev else text
                         
@@ -1045,7 +1075,7 @@ class LegalCaseScraper:
                         for li in next_sib.find_all('li'):
                             li_text = li.get_text(separator=' ', strip=True)
                             if li_text:
-                                if any(kw in li_text for kw in KEYWORDS_2):
+                                if any(li_text.startswith(kw) for kw in KEYWORDS_2):
                                     if prev:  # IMPROVEMENT 24: Only append if prev has content
                                         prakarans.append(prev)
                                     prakarans.append(li_text)
@@ -1499,31 +1529,43 @@ class LegalCaseScraper:
             details = {}
             
             if div_tag:
-                p_tags = div_tag.find_all('p')
-                n = len(p_tags)
+                tags = div_tag.find_all(['h1', 'p'])
+                n = len(tags)
                 ind = 0
                 temp_ind_32 = ind
-                KEYWORDS_2 = ["(प्रकरण नं", "(प्रकारण नं.", "९प्रकरण नं।", "(प्रकरण", "(प्र.नं."]
+                #KEYWORDS_2 = ["(प्रकरण नं", "(प्रकारण नं.", "९प्रकरण नं।", "(प्रकरण", "(प्र.नं."]
+
+                KEYWORDS_2 = ["प्रकरण नं.", "(प्रकरण नं", "(प्रकारण नं.", "९प्रकरण नं।", "(प्रकरण", "(प्र नं.","( प्र. नं","(प्र.नं", "(प्र. नं", "( प्रकरण नं.", "( प्रकरणन", "( प्र.नं.", "( प्र . नं .", "( प ्र . नं .", "(प्ररकण नं.", "(प्रकराण नं."]
+                KEYWORDS_3 = ["निवेदक", "वादी", "पुनरावेदक", "निबेदक", "पुनरावदेक", "निवेदिका", "निवेदीका", "निवदेक", "न ि वेदक ः", "नि वेदक ः", "पुनरावेदन", "पुनरवेदिका", "पुनरावेदिका", "पुनरावेदीका", "बादि", "पुनराबेदक", "प्रतिबादी", "पुनरावेक", "अपीलाट", "निवेदनक", "उजुरवाला", "अपिलबाट", "अपिलाट"]
+                KEYWORDS_4 = ["विपक्षी", "प्रतिवादी", "प्रत्यर्थी", "बिपक्षी", "विपक्षी ः", "पिपक्षी", "प्रत्यार्थी", "विपक्ष", "रेस्पोण्डेण्ट", "रेस्पोन्डेन्ट", "प्रत्यथी"]
+                KEYWORDS_5 = ["विषय", "मुद्दा", "बिषय", "मूद्दा", "मुद्द", "मद्दा", "विपक्ष", "मुद्धा", "मुद् दा"]
+                KEYWORDS_6 = ["अदालत", "इजलास", "इजालास", "इजलाश", "बेञ्च"]
+                KEYWORDS_7 = ["आदेश", "फैसला", "फैसलमा", "निर्णय", "फै सला", "मुद्दा"]
+                KEYWORDS_8 = ["न्यायाधीश", "माननीय", "न्यायधीश", "न्यायाधीस", "न्ययाधीश", "न्यायाधिश", "न्यायाधी", "न्यानायधीश", "नयायाधीश", "न्यायाधधिश", "नयाधश"]
+                KEYWORDS_9 = [ "विरूद्ध", "बिरूद्ध", "विरुद्ध", "बिरुद्ध"]
+                KEYWORDS_10 = ["AP", "FN", "RE", "RI", "LE", "RV", "NF", "CI", "CR", "RC", "SA", "MS", "ND", "RB", "CF", "DF", "RF", "WO", "WH", "WS", "WF", "WC", "CC", "EC"]
                 # Extract court information
                 while ind < n:
-                    text = p_tags[ind].get_text(strip=True)
-                    if text and "अदालत" in text:
-                        details["अदालत"] = text
+                    text = tags[ind].get_text(strip=True)
+                    if text and any(kw in text for kw in KEYWORDS_6):
+                        details["अदालत / इजलास"] = text
                         ind += 1
                         break
                     ind += 1
 
                 if ind >= n:
                     ind = temp_ind_32
+                else:
+                    temp_ind_32 = ind
                 
                 # Extract judges
                 judges = []
                 while ind < n:
-                    text = p_tags[ind].get_text(strip=True)
+                    text = tags[ind].get_text(strip=True)
                     if text:
-                        if "न्यायाधीश" in text:
+                        if any(kw in text for kw in KEYWORDS_8):
                             judges.append(text)
-                        if "आदेश मिति" in text or "फैसला मिति" in text:
+                        if any(text.startswith(kw) for kw in KEYWORDS_7) and ("मिति" in text or "मिती" in text):
                             details["न्यायाधीश"] = judges
                             details["आदेश मिति"] = text
                             ind += 1
@@ -1532,13 +1574,15 @@ class LegalCaseScraper:
 
                 if ind >= n:
                     ind = temp_ind_32
+                else:
+                    temp_ind_32 = ind
                 
                 # Extract case details
                 bisaya_before_kas_no = False
                 while ind < n:
-                    text = p_tags[ind].get_text(strip=True)
+                    text = tags[ind].get_text(strip=True)
                     if text:
-                        if "विषय" in text or "मुद्दा" in text:
+                        if any(kw in text for kw in KEYWORDS_5):
                             bisaya_before_kas_no = True
                             details["विषय"] = text
                             ind += 1
@@ -1549,6 +1593,8 @@ class LegalCaseScraper:
 
                 if ind > n:
                     ind = temp_ind_32
+                else:
+                    temp_ind_32 = ind
                 
                 # Handle different case structures
                 if bisaya_before_kas_no:
@@ -1560,7 +1606,7 @@ class LegalCaseScraper:
                     while temp_flag and ind < n:
                         # Extract case number
                         while ind < n:
-                            text = p_tags[ind].get_text(strip=True)
+                            text = tags[ind].get_text(strip=True)
                             if text:
                                 case_no.append(text)
                                 ind += 1
@@ -1569,8 +1615,11 @@ class LegalCaseScraper:
                         
                         # Extract appellant
                         while ind < n:
-                            text = p_tags[ind].get_text(strip=True)
-                            if "निवेदक" in text or "प्रतिवादी" in text or "पुनरावेदक" in text:
+                            text = tags[ind].get_text(strip=True)
+                            if any(kw in text for kw in KEYWORDS_3):
+                                if any(kw2 == text for kw2 in KEYWORDS_3):
+                                    ind+=1
+                                    text = tags[ind].get_text(strip=True)
                                 appellant.append(text)
                                 ind += 1
                                 break
@@ -1578,8 +1627,11 @@ class LegalCaseScraper:
                         
                         # Extract opposition
                         while ind < n:
-                            text = p_tags[ind].get_text(strip=True)
-                            if "विपक्षी" in text or "वादी" in text or "प्रत्यर्थी" in text:
+                            text = tags[ind].get_text(strip=True)
+                            if any(kw in text for kw in KEYWORDS_4):
+                                if any(kw2 == text for kw2 in KEYWORDS_4):
+                                    ind += 1
+                                    text = tags[ind].get_text(strip=True)
                                 opposition.append(text)
                                 ind += 1
                                 break
@@ -1587,24 +1639,26 @@ class LegalCaseScraper:
                         
                         # Check for end condition
                         temp_ind = ind
-                        for tag in p_tags[temp_ind:]:
+                        for tag in tags[temp_ind:]:
                             text = tag.get_text(strip=True)
-                            if "(प्रकरण नं" in text or "(प्रकारण नं." in text or "९प्रकरण नं।" in text or "(प्रकरण" in text:
+                            if any(kw in text for kw in KEYWORDS_2):
                                 temp_flag = False
                                 details["केस_नम्बर"] = case_no
                                 details["निवेदक"] = appellant
                                 details["विपक्षी"] = opposition
                                 break
-                            elif "विरूद्ध"== text:
+                            elif any(kw == text for kw in KEYWORDS_9):
                                 break
 
                     if ind >= n:
                         ind = temp_ind_32
+                    else:
+                        temp_ind_32 = ind
                 else:
                     # Standard case structure
                     while ind < n:
-                        text = p_tags[ind].get_text(strip=True)
-                        if "विषय" in text or "मुद्दा" in text:
+                        text = tags[ind].get_text(strip=True)
+                        if any(kw in text for kw in KEYWORDS_5):
                             details["विषय"] = text
                             ind += 1
                             break
@@ -1612,10 +1666,15 @@ class LegalCaseScraper:
 
                     if ind >= n:
                         ind = temp_ind_32
+                    else:
+                        temp_ind_32 = ind
                     
                     while ind < n:
-                        text = p_tags[ind].get_text(strip=True)
-                        if "निवेदक" in text or "प्रतिवादी" in text or "पुनरावेदक" in text:
+                        text = tags[ind].get_text(strip=True)
+                        if any(kw in text for kw in KEYWORDS_3):
+                            if any(kw2 == text for kw2 in KEYWORDS_3):
+                                ind+=1
+                                text = tags[ind].get_text(strip=True)
                             details["निवेदक"] = text
                             ind += 1
                             break
@@ -1623,10 +1682,15 @@ class LegalCaseScraper:
 
                     if ind >= n:
                         ind = temp_ind_32
+                    else:
+                        temp_ind_32 = ind
                     
                     while ind < n:
-                        text = p_tags[ind].get_text(strip=True)
-                        if "विपक्षी" in text or "वादी" in text or "प्रत्यर्थी" in text:
+                        text = tags[ind].get_text(strip=True)
+                        if any(kw in text for kw in KEYWORDS_4):
+                            if any(kw2 == text for kw2 in KEYWORDS_4):
+                                ind+=1
+                                text = tags[ind].get_text(strip=True)
                             details["विपक्षी"] = text
                             ind += 1
                             break
@@ -1634,6 +1698,8 @@ class LegalCaseScraper:
 
                     if ind >= n:
                         ind = temp_ind_32
+                    else:
+                        temp_ind_32 = ind
                 
                 # Clean up extracted text
                 # self.clean_extracted_details(details, bisaya_before_kas_no)
@@ -1644,42 +1710,45 @@ class LegalCaseScraper:
                 tahar = []
                 temp_flag_tahar = False
 
-                for tag in p_tags[ind:]:
-                    text = tag.get_text(strip=True)
+                for tag in tags[ind:]:
+                    text = tag.get_text(separator=' ', strip=True)
                     if text:
-                        if any(kw in text for kw in KEYWORDS_2):
-                            prakarans.append(prev)
-                            prakarans.append(text)
-                            prev = ""
+                        #if "§" in text or any(kw in text for kw in KEYWORDS_2):
+                            #prakarans.append(text)
+                        if "§" in text or any(text.startswith(kw) for kw in KEYWORDS_2) or "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
+                            if any(text.startswith(kw) for kw in KEYWORDS_2):
+                                if prev:  # IMPROVEMENT 23: Only append if prev has content
+                                    prakarans.append(prev)
+                                prakarans.append(text)
+                                prev = ""
+                            if "§" in text:
+                                prakarans.append(text)
+                            if "फैसला"==text or "आदेश"==text or "फैसलाः"==text:
+                                if not prakarans:
+                                    prakarans.append(prev)
                         else:
                             prev = prev + " " + text if prev else text
                         
-                        if "फैसला"==text or "आदेश"==text or temp_flag_tahar:
+                        if text in ["फैसला", "आदेश", "फैसलाः"] or temp_flag_tahar:
                             temp_flag_tahar = True
                             tahar.append(text)
 
-
-                    # --- Inserted check for <li> inside following siblings ---
+                    # Process list items
                     next_sib = tag.find_next_sibling()
                     while next_sib and next_sib.name in ['ul', 'ol']:
-                        # Loop through all <li> inside this list
                         for li in next_sib.find_all('li'):
-                            li_text = li.get_text(strip=True)
+                            li_text = li.get_text(separator=' ', strip=True)
                             if li_text:
-                                #print(li_text)
-                                if any(kw in li_text for kw in KEYWORDS_2):
-                                    prakarans.append(prev)
+                                if any(li_text.startswith(kw) for kw in KEYWORDS_2):
+                                    if prev:  # IMPROVEMENT 24: Only append if prev has content
+                                        prakarans.append(prev)
                                     prakarans.append(li_text)
                                     prev = ""
                                 else:
-                                    if prev:
-                                        prev = prev + " " + li_text
-                                    else:
-                                        prev = prev + li_text
-                                if "फैसला" == li_text or "आदेश" == li_text or temp_flag_tahar:
+                                    prev = prev + " " + li_text if prev else li_text
+                                if li_text in ["फैसला", "आदेश", "फैसलाः"] or temp_flag_tahar:
                                     temp_flag_tahar = True
                                     tahar.append(li_text)
-                        # Move to next sibling in case multiple lists follow
                         next_sib = next_sib.find_next_sibling()
                 
                 details["प्रकरण"] = prakarans
@@ -1701,7 +1770,7 @@ class LegalCaseScraper:
                 "महिना": mahina,
                 "अंक": anka,
                 "फैसला मिति": f"'{decision_date}'",
-                "अदालत / इजलास": details.get("अदालत", "N/A"),
+                "अदालत / इजलास": details.get("अदालत / इजलास", "N/A"),
                 "न्यायाधीश": json.dumps(details.get("न्यायाधीश", []), ensure_ascii=False),
                 "आदेश मिति": details.get("आदेश मिति", "N/A"),
                 "केस_नम्बर": json.dumps(details.get("केस_नम्बर", []), ensure_ascii=False) if isinstance(details.get("केस_नम्बर"), list) else details.get("केस_नम्बर", "N/A"),
