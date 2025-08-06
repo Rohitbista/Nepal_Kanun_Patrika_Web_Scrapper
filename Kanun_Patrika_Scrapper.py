@@ -11,6 +11,7 @@ import json
 import re
 from pathlib import Path
 import glob
+import nepali_datetime
 
 class LegalCaseScraper:
     def __init__(self, output_db="legal_cases_2.db", html_folder="scraped_html"):
@@ -320,6 +321,9 @@ class LegalCaseScraper:
     def determine_scraper_method(self, sal):
         """Determine which scraper method to use based on year"""
         eng_sal = int(self.nepali_sal_to_english_sal(sal))
+
+        today = nepali_datetime.date.today()
+        latest_nepali_year = int(today.year)
         
         if 2015 <= eng_sal <= 2044:
             return self.scrape_case_details_2015_to_2044
@@ -329,10 +333,10 @@ class LegalCaseScraper:
             return self.scrape_case_details_2051_to_2061
         elif 2062 <= eng_sal <= 2072:
             return self.scrape_case_details_2062_to_2072
-        elif 2073 <= eng_sal <= 2080:
-            return self.scrape_case_details_2073_to_2080
+        elif 2073 <= eng_sal < latest_nepali_year:
+            return self.scrape_case_details_2073_to_2080_and_beyond
         else:
-            raise ValueError(f"No scraper method available for year {eng_sal}")
+            raise ValueError(f"No scraper method available for year {eng_sal} or those records not yet available in Nepal Kanun Patrika Website")
 
     def scrape_case_details_generic(self, url, mudda_type, sal, use_saved=True):
         """Generic method that routes to the appropriate scraper based on year"""
@@ -632,7 +636,6 @@ class LegalCaseScraper:
             print(f"Error scraping {url}: {e}")
             return False
 
-#def scrape_case_details_2015_to_2044(self, url, mudda_type, sal=None, use_saved=True):
     def scrape_case_details_2045_to_2050(self, url, mudda_type, sal = None, use_saved=True):  # CHANGE 4: Remove output_db parameter
         """Scrape details from a single case URL"""
         try:
@@ -1495,7 +1498,7 @@ class LegalCaseScraper:
             print(f"Error scraping {url}: {e}")
             return False
 
-    def scrape_case_details_2073_to_2080(self, url, mudda_type, sal = None, use_saved=True):
+    def scrape_case_details_2073_to_2080_and_beyond(self, url, mudda_type, sal = None, use_saved=True):
         """Scrape details from a single case URL"""
         try:
             r = requests.get(url, timeout=15)
@@ -1790,21 +1793,6 @@ class LegalCaseScraper:
         except Exception as e:
             print(f"Error scraping {url}: {e}")
             return False
-
-    # Similar modifications would be made to other scraper methods...
-    # For brevity, I'll include just the generic pattern and key methods
-
-##    def scrape_case_details_2062_to_2072(self, url, mudda_type, sal=None, use_saved=True):
-##        """Scrape details from a single case URL (2062-2072) - Similar structure to above"""
-##        # Implementation similar to 2015_to_2044 but with year-specific parsing logic
-##        # This would follow the same pattern with HTML file handling
-##        pass
-##
-##    def scrape_case_details_2073_to_2080(self, url, mudda_type, sal=None, use_saved=True):
-##        """Scrape details from a single case URL (2073-2080) - Similar structure to above"""
-##        # Implementation similar to 2015_to_2044 but with year-specific parsing logic
-##        # This would follow the same pattern with HTML file handling
-##        pass
 
     def save_to_sqlite(self, data):
         """Save data to SQLite database"""
